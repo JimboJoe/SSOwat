@@ -485,7 +485,15 @@ function get_data_for(view)
         or view == "password.html"
         or view == "ynhpanel.json" then
 
-        delete_user_info_cache(user)
+        -- Invalidate cache before loading these views.
+        -- Needed if the LDAP db is changed outside ssowat (from the cli for example).
+        -- Not doing it for ynhpanel.json only for performance reasons,
+        --   so the panel could might wrong first name, last name or main email address
+        if view ~= "ynhpanel.json" then
+            delete_user_info_cache(user)
+        end
+
+        -- Be sure cache is loaded
         set_headers(user)
 
         local mails = get_mails(user)
